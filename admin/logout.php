@@ -1,11 +1,11 @@
 <?php
-    require_once("includes/connect.php");
-    require_once("includes/activity_logger.php");
+    require_once("../includes/connect.php");
+    require_once("../includes/activity_logger.php");
     session_start();
     
     // Log the logout before destroying the session
     if(isset($_SESSION['user_id'])) {
-        logActivity($conn, $_SESSION['user_id'], "Logout", "User logged out");
+        logActivity($conn, $_SESSION['user_id'], "Logout", "Admin user logged out");
     }
     
     // Clear all session variables
@@ -20,6 +20,6 @@
     session_destroy();
     
     // Redirect to login page with a success message
-    header("Location: login.php?logout=success");
+    header("Location: ../login.php?logout=success");
     exit();
-?> 
+?>

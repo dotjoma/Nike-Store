@@ -32,7 +32,7 @@
             // Handle image upload
             $image = null;
             if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-                $allowed = ['image/jpeg', 'image/png', 'image/gif'];
+                $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/avif'];
                 $filetype = $_FILES['image']['type'];
 
                 // Verify file type
@@ -40,7 +40,7 @@
                     // Read file content
                     $image = file_get_contents($_FILES['image']['tmp_name']);
                 } else {
-                    throw new Exception("Invalid file type. Only JPG, PNG and GIF are allowed.");
+                    throw new Exception("Invalid file type. Only JPG, PNG, GIF and AVIF are allowed.");
                 }
             }
 
@@ -222,7 +222,7 @@
                                                 </div>
                                             <?php endif; ?>
                                             <input type="file" class="form-control" id="image" name="image" accept="image/*">
-                                            <small class="text-muted">Leave empty to keep current image. Allowed formats: JPG, JPEG, PNG, GIF</small>
+                                            <small class="text-muted">Leave empty to keep current image. Allowed formats: JPG, PNG, GIF and AVIF</small>
                                         </div>
                                     </div>
 

@@ -1,5 +1,6 @@
 <?php
     require_once("includes/connect.php");
+    require_once("includes/activity_logger.php");
     session_start();
 
     if(isset($_POST['login'])) {
@@ -18,6 +19,9 @@
                 $_SESSION['user_role'] = $user['role'];
                 $_SESSION['user_image'] = $user['image'];
                 
+                // Log successful login
+                logActivity($conn, $user['id'], "Login", "User logged in successfully");
+                
                 if($user['role'] === 'admin') {
                     header("Location: index.php");
                 } else {
@@ -25,6 +29,8 @@
                 }
                 exit();
             } else {
+                // Log failed login attempt
+                logActivity($conn, null, "Failed Login", "Failed login attempt for email: " . $email);
                 $error = "Invalid email or password";
             }
         } catch(PDOException $e) {

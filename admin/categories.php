@@ -42,12 +42,15 @@
 <html lang="en">
     <head>
         <meta charset="utf-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
-        <meta name="description" content="Category Management - Nike Admin Dashboard" />
+        <meta name="description" content="" />
         <meta name="author" content="" />
-        <title>Category Management - Nike Admin</title>
         <!-- Favicon-->
         <link rel="icon" type="image/x-icon" href="../assets/favicon.ico" />
+        <title>Dashboard - SB Admin</title>
+        <link href="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/style.min.css" rel="stylesheet" />
+        <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
         <!-- Bootstrap icons-->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
         <!-- Core theme CSS (includes Bootstrap)-->
@@ -61,17 +64,6 @@
             body {
                 font-family: 'Helvetica Neue', Arial, sans-serif;
                 background-color: #f8f9fa;
-            }
-            .navbar {
-                background-color: var(--nike-black) !important;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }
-            .navbar-brand, .nav-link {
-                color: var(--nike-white) !important;
-                font-weight: 600;
-            }
-            .nav-link:hover {
-                color: var(--nike-gray) !important;
             }
             .btn-nike {
                 background-color: var(--nike-black);

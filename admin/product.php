@@ -11,7 +11,8 @@
     }
     
     // Pagination settings
-    $items_per_page = 10;
+    $items_per_page_options = [5, 10, 15, 20, 30, 50, 100, 200, 300, 500];
+    $items_per_page = isset($_GET['items_per_page']) && in_array($_GET['items_per_page'], $items_per_page_options) ? (int)$_GET['items_per_page'] : 10;
     $page = isset($_GET['page']) ? (int)$_GET['page'] : 1;
     $offset = ($page - 1) * $items_per_page;
 
@@ -117,6 +118,10 @@
     function getPageUrl($page) {
         $params = $_GET;
         $params['page'] = $page;
+        // Ensure items_per_page is included in the URL parameters
+        if (isset($_GET['items_per_page'])) {
+            $params['items_per_page'] = $_GET['items_per_page'];
+        }
         return '?' . http_build_query($params);
     }
 ?>
@@ -159,8 +164,11 @@
 
                         <!-- Add Product Button -->
                         <div class="mb-4">
-                            <a href="add_product.php" class="btn btn-primary">
+                            <a href="add_product.php" class="btn btn-primary me-2">
                                 <i class="fas fa-plus"></i> Add New Product
+                            </a>
+                            <a href="bulk_add_products.php" class="btn btn-success">
+                                <i class="fas fa-upload"></i> Bulk Add Products
                             </a>
                         </div>
 
@@ -197,6 +205,19 @@
                                     </div>
                                     <div class="col-md-2">
                                         <button type="submit" class="btn btn-primary w-100">Search</button>
+                                    </div>
+                                </form>
+                                <form method="GET" class="row g-3 mt-2">
+                                    <div class="col-md-3">
+                                        <label for="items_per_page" class="form-label">Items per page:</label>
+                                        <select class="form-select" id="items_per_page" name="items_per_page" onchange="this.form.submit()">
+                                            <?php foreach($items_per_page_options as $option): ?>
+                                                <option value="<?php echo $option; ?>" <?php echo ($items_per_page == $option) ? 'selected' : ''; ?>><?php echo $option; ?></option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-9">
+                                        <!-- Empty column for alignment -->
                                     </div>
                                 </form>
                             </div>

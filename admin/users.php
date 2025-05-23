@@ -66,6 +66,8 @@
         <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
         <link href="../css/styles.css" rel="stylesheet" />
+        <!-- SweetAlert2 CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
     </head>
     <body class="sb-nav-fixed">
         <!-- Start of Header -->
@@ -142,9 +144,10 @@
                                                         <i class="fas fa-edit"></i>
                                                     </a>
                                                     <?php if($user['id'] != $_SESSION['user_id']): ?>
-                                                        <a href="?delete=<?php echo $user['id']; ?>" 
-                                                           class="btn btn-danger btn-sm"
-                                                           onclick="return confirm('Are you sure you want to delete this user?')">
+                                                        <a href="javascript:void(0)" 
+                                                           class="btn btn-danger btn-sm delete-user"
+                                                           data-user-id="<?php echo $user['id']; ?>"
+                                                           data-user-name="<?php echo htmlspecialchars($user['name']); ?>">
                                                             <i class="fas fa-trash"></i>
                                                         </a>
                                                     <?php endif; ?>
@@ -189,6 +192,35 @@
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
         <script src="../js/scripts.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
         <script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js" crossorigin="anonymous"></script>
+        <!-- SweetAlert2 JS -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Add click event listener to all delete buttons
+                document.querySelectorAll('.delete-user').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const userId = this.getAttribute('data-user-id');
+                        const userName = this.getAttribute('data-user-name');
+                        
+                        Swal.fire({
+                            title: 'Are you sure?',
+                            text: `Do you want to delete user "${userName}"?`,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            cancelButtonColor: '#3085d6',
+                            confirmButtonText: 'Yes, delete it!'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = `?delete=${userId}`;
+                            }
+                        });
+                    });
+                });
+            });
+        </script>
     </body>
 </html>

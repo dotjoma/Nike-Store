@@ -1,5 +1,6 @@
 <?php
     require_once("../includes/connect.php");
+    require_once("../includes/activity_logger.php");
 
     session_start();
 
@@ -13,6 +14,13 @@
     if (isset($_GET['id'])) {
         try {
             $id = $_GET['id'];
+            
+            // First get the product name for logging
+            $get_product_query = "SELECT name FROM products WHERE id = :id";
+            $get_product_stmt = $conn->prepare($get_product_query);
+            $get_product_stmt->bindParam(':id', $id);
+            $get_product_stmt->execute();
+            $product = $get_product_stmt->fetch(PDO::FETCH_ASSOC);
             
             // First check if the product exists
             $check_query = "SELECT id FROM products WHERE id = :id";
@@ -31,6 +39,9 @@
             $stmt->bindParam(':id', $id);
             
             if ($stmt->execute()) {
+                // Log the activity
+                logActivity($conn, $_SESSION['user_id'], "Delete Product", "Deleted product: " . $product['name'] . " (ID: " . $id . ")");
+                
                 header("Location: product.php?success=Product deleted successfully");
                 exit();
             } else {

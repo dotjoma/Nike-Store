@@ -1,5 +1,6 @@
 <?php
     require_once("../includes/connect.php");
+    require_once("../includes/activity_logger.php");
 
     session_start();
 
@@ -24,7 +25,7 @@
             // Handle image upload
             $image = null;
             if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-                $allowed = ['image/jpeg', 'image/png', 'image/gif'];
+                $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/avif'];
                 $filetype = $_FILES['image']['type'];
 
                 // Verify file type
@@ -32,7 +33,7 @@
                     // Read file content
                     $image = file_get_contents($_FILES['image']['tmp_name']);
                 } else {
-                    throw new Exception("Invalid file type. Only JPG, PNG and GIF are allowed.");
+                    throw new Exception("Invalid file type. Only JPG, PNG, GIF and AVIF are allowed.");
                 }
             }
 
@@ -50,6 +51,9 @@
             $stmt->bindParam(':image', $image, PDO::PARAM_LOB);
             
             if ($stmt->execute()) {
+                // Log the activity
+                logActivity($conn, $_SESSION['user_id'], "Add Product", "Added new product: " . $name);
+                
                 header("Location: product.php");
                 exit();
             }
@@ -198,7 +202,7 @@
                                         <div class="col-md-6">
                                             <label for="image" class="form-label">Product Image</label>
                                             <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
-                                            <small class="text-muted">Allowed formats: JPG, JPEG, PNG, GIF</small>
+                                            <small class="text-muted">Allowed formats: JPG, JPEG, PNG, GIF, AVIF</small>
                                         </div>
                                     </div>
 

@@ -8,15 +8,15 @@
                     Dashboard
                 </a>
                 <a class="nav-link" href="product.php">
-                    <div class="sb-nav-link-icon"><i class="fa-solid fa-a"></i></i></div>
+                    <div class="sb-nav-link-icon"><i class="fas fa-box"></i></div>
                     Product
                 </a>
                 <a class="nav-link" href="categories.php">
-                    <div class="sb-nav-link-icon"><i class="fa-solid fa-a"></i></i></div>
+                    <div class="sb-nav-link-icon"><i class="fas fa-tags"></i></div>
                     Categories
                 </a>
                 <a class="nav-link" href="users.php">
-                    <div class="sb-nav-link-icon"><i class="fa-solid fa-a"></i></i></div>
+                    <div class="sb-nav-link-icon"><i class="fas fa-users"></i></div>
                     Users
                 </a>
 
@@ -67,7 +67,16 @@
         </div>
         <div class="sb-sidenav-footer">
             <div class="small">Logged in as:</div>
-            Start Bootstrap
+            <?php 
+                if(isset($_SESSION['user_name'])) {
+                    echo $_SESSION['user_name'];
+                    if(isset($_SESSION['user_role'])) {
+                        echo " (" . ucfirst($_SESSION['user_role']) . ")";
+                    }
+                } else {
+                    echo "Guest";
+                }
+            ?>
         </div>
     </nav>
 </div>
