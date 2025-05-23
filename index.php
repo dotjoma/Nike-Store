@@ -165,46 +165,54 @@
             <div class="container px-4 px-lg-5">
                 <?php foreach($categories as $category_name => $products): ?>
                     <h2 class="category-title"><?php echo htmlspecialchars($category_name); ?></h2>
-                    <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 mb-5">
-                        <?php foreach($products as $product): ?>
-                            <div class="col mb-5">
-                                <a href="product.php?id=<?php echo $product['product_id']; ?>" class="text-decoration-none text-dark">
-                                    <div class="card h-100 product-card">
-                                        <!-- Product image-->
-                                        <?php if($product['image']): ?>
-                                            <img class="card-img-top product-image" 
-                                                 src="data:image/jpeg;base64,<?php echo base64_encode($product['image']); ?>" 
-                                                 alt="<?php echo htmlspecialchars($product['name']); ?>" />
-                                        <?php else: ?>
-                                            <img class="card-img-top product-image" 
-                                                 src="assets/no-image.jpg" 
-                                                 alt="No image available" />
-                                        <?php endif; ?>
-                                        
-                                        <!-- Product details-->
-                                        <div class="card-body p-4">
-                                            <div class="text-center">
-                                                <!-- Product name-->
-                                                <h5 class="fw-bolder"><?php echo htmlspecialchars($product['name']); ?></h5>
-                                                <!-- Product price-->
-                                                <div class="price">₱<?php echo number_format($product['price'], 2); ?></div>
-                                                <!-- Product stock-->
-                                                <div class="stock">In Stock: <?php echo $product['stock']; ?></div>
+                    <div class="product-carousel-container position-relative mb-5">
+                        <button class="carousel-arrow carousel-arrow-left btn btn-light position-absolute top-50 start-0 translate-middle-y" style="z-index: 10;">
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                        <div class="product-carousel d-flex flex-nowrap overflow-auto">
+                            <?php foreach($products as $product): ?>
+                                <div class="col-md-3 flex-shrink-0 me-3">
+                                    <a href="product.php?id=<?php echo $product['product_id']; ?>" class="text-decoration-none text-dark">
+                                        <div class="card h-100 product-card">
+                                            <!-- Product image-->
+                                            <?php if($product['image']): ?>
+                                                <img class="card-img-top product-image" 
+                                                     src="data:image/jpeg;base64,<?php echo base64_encode($product['image']); ?>" 
+                                                     alt="<?php echo htmlspecialchars($product['name']); ?>" />
+                                            <?php else: ?>
+                                                <img class="card-img-top product-image" 
+                                                     src="assets/no-image.jpg" 
+                                                     alt="No image available" />
+                                            <?php endif; ?>
+                                            
+                                            <!-- Product details-->
+                                            <div class="card-body p-4">
+                                                <div class="text-center">
+                                                    <!-- Product name-->
+                                                    <h5 class="fw-bolder"><?php echo htmlspecialchars($product['name']); ?></h5>
+                                                    <!-- Product price-->
+                                                    <div class="price">₱<?php echo number_format($product['price'], 2); ?></div>
+                                                    <!-- Product stock-->
+                                                    <div class="stock">In Stock: <?php echo $product['stock']; ?></div>
+                                                </div>
+                                            </div>
+                                            <!-- Product actions-->
+                                            <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
+                                                <div class="text-center">
+                                                    <button class="btn btn-outline-dark add-to-cart" 
+                                                            onclick="addToCart(<?php echo $product['product_id']; ?>)">
+                                                        Add to Cart
+                                                    </button>
+                                                </div>
                                             </div>
                                         </div>
-                                        <!-- Product actions-->
-                                        <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                                            <div class="text-center">
-                                                <button class="btn btn-outline-dark add-to-cart" 
-                                                        onclick="addToCart(<?php echo $product['product_id']; ?>)">
-                                                    Add to Cart
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </a>
-                            </div>
-                        <?php endforeach; ?>
+                                    </a>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <button class="carousel-arrow carousel-arrow-right btn btn-light position-absolute top-50 end-0 translate-middle-y" style="z-index: 5;">
+                            <i class="bi bi-chevron-right"></i>
+                        </button>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -223,8 +231,49 @@
         <script src="js/scripts.js"></script>
         <script>
             function addToCart(productId) {
-                
+                // addtocart function, no need!
             }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('.product-carousel-container').forEach(container => {
+                    const carousel = container.querySelector('.product-carousel');
+                    const leftArrow = container.querySelector('.carousel-arrow-left');
+                    const rightArrow = container.querySelector('.carousel-arrow-right');
+            
+                    const toggleArrows = () => {
+                        if (carousel.scrollLeft <= 5) {
+                            leftArrow.style.display = 'none';
+                        } else {
+                            leftArrow.style.display = 'block';
+                        }
+
+                        if (carousel.scrollWidth <= carousel.clientWidth + 5) {
+                            leftArrow.style.display = 'none';
+                            rightArrow.style.display = 'none';
+                        } else if (carousel.scrollLeft + carousel.clientWidth >= carousel.scrollWidth - 5) {
+                             rightArrow.style.display = 'none';
+                        } else {
+                             rightArrow.style.display = 'block';
+                        }
+                    };
+
+                    toggleArrows();
+
+                    carousel.addEventListener('scroll', toggleArrows);
+
+                    leftArrow.addEventListener('click', () => {
+                        const scrollAmount = carousel.querySelector('.col-md-3').offsetWidth + 16; 
+                        carousel.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+                    });
+
+                    rightArrow.addEventListener('click', () => {
+                        const scrollAmount = carousel.querySelector('.col-md-3').offsetWidth + 16;
+                        carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+                    });
+
+                    window.addEventListener('resize', toggleArrows);
+                });
+            });
         </script>
     </body>
 </html>
