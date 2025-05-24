@@ -78,6 +78,8 @@
                 color: var(--nike-white);
             }
         </style>
+        <!-- Add SweetAlert2 CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
     </head>
     <body class="sb-nav-fixed">
         <!-- Start of Header -->
@@ -146,15 +148,14 @@
                                             <td><?php echo htmlspecialchars($category['category_name']); ?></td>
                                             <td><?php echo date('M d, Y', strtotime($category['created_at'])); ?></td>
                                             <td>
-                                                <a href="edit_category.php?id=<?php echo $category['id']; ?>" 
+                                                <a href="edit_category.php?id=<?php echo md5($category['id']); ?>" 
                                                    class="btn btn-primary btn-sm">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <a href="delete_category.php?id=<?php echo $category['id']; ?>" 
-                                                   class="btn btn-danger btn-sm"
-                                                   onclick="return confirm('Are you sure you want to delete this category?')">
+                                                <button onclick="confirmDelete('<?php echo md5($category['id']); ?>', '<?php echo htmlspecialchars($category['category_name']); ?>')" 
+                                                        class="btn btn-danger btn-sm">
                                                     <i class="fas fa-trash"></i>
-                                                </a>
+                                                </button>
                                             </td>
                                         </tr>
                                         <?php endforeach; ?>
@@ -179,6 +180,36 @@
                     new simpleDatatables.DataTable(datatablesSimple);
                 }
             });
+        </script>
+        <!-- Add SweetAlert2 JS before closing body tag -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
+        <script>
+            function confirmDelete(id, categoryName) {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: `Do you want to delete the category "${categoryName}"?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = `delete_category.php?id=${id}`;
+                    }
+                });
+            }
+
+            // Check for error messages in URL and show them with SweetAlert
+            <?php if (isset($_GET['error'])): ?>
+            Swal.fire({
+                title: 'Error!',
+                text: '<?php echo htmlspecialchars($_GET['error']); ?>',
+                icon: 'error',
+                confirmButtonColor: '#3085d6'
+            });
+            <?php endif; ?>
         </script>
     </body>
 </html>

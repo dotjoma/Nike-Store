@@ -279,37 +279,40 @@
                                     </thead>
                                     <tbody>
                                         <?php foreach($products as $product): ?>
-                                        <tr>
-                                            <td>
-                                                <?php if($product['image']): ?>
-                                                    <img src="data:image/jpeg;base64,<?php echo base64_encode($product['image']); ?>" 
-                                                         alt="<?php echo htmlspecialchars($product['name']); ?>" 
-                                                         class="img-thumbnail" 
-                                                         style="max-width: 50px;">
-                                                <?php else: ?>
-                                                    <span class="text-muted">No image</span>
-                                                <?php endif; ?>
-                                            </td>
-                                            <td><?php echo htmlspecialchars($product['name']); ?></td>
-                                            <td>₱<?php echo number_format($product['price'], 2); ?></td>
-                                            <td><?php echo $product['stock']; ?></td>
-                                            <td><?php echo htmlspecialchars($product['category_name']); ?></td>
-                                            <td>
-                                                <span class="badge bg-<?php echo $product['status'] == 'active' ? 'success' : 'danger'; ?>">
-                                                    <?php echo ucfirst($product['status']); ?>
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <a href="edit_product.php?id=<?php echo $product['id']; ?>" class="btn btn-primary btn-sm">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <a href="javascript:void(0)" 
-                                                   onclick="confirmDelete(<?php echo $product['id']; ?>, '<?php echo htmlspecialchars($product['name']); ?>')" 
-                                                   class="btn btn-danger btn-sm">
-                                                    <i class="fas fa-trash"></i>
-                                                </a>
-                                            </td>
-                                        </tr>
+                                            <tr>
+                                                <td>
+                                                    <?php if($product['image']): ?>
+                                                        <img src="data:image/jpeg;base64,<?php echo base64_encode($product['image']); ?>" 
+                                                             alt="<?php echo htmlspecialchars($product['name']); ?>"
+                                                             class="img-thumbnail" style="max-width: 50px;">
+                                                    <?php else: ?>
+                                                        <img src="../assets/no-image.jpg" 
+                                                             alt="No image"
+                                                             class="img-thumbnail" style="max-width: 50px;">
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td><?php echo htmlspecialchars($product['name']); ?></td>
+                                                <td>₱<?php echo number_format($product['price'], 2); ?></td>
+                                                <td><?php echo $product['stock']; ?></td>
+                                                <td><?php echo htmlspecialchars($product['category_name']); ?></td>
+                                                <td>
+                                                    <span class="badge <?php echo $product['status'] === 'active' ? 'bg-success' : 'bg-danger'; ?>">
+                                                        <?php echo ucfirst($product['status']); ?>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <a href="edit_product.php?id=<?php echo md5($product['id']); ?>" 
+                                                       class="btn btn-primary btn-sm">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a href="javascript:void(0)" 
+                                                       class="btn btn-danger btn-sm delete-product"
+                                                       data-product-id="<?php echo md5($product['id']); ?>"
+                                                       data-product-name="<?php echo htmlspecialchars($product['name']); ?>">
+                                                        <i class="fas fa-trash"></i>
+                                                    </a>
+                                                </td>
+                                            </tr>
                                         <?php endforeach; ?>
                                     </tbody>
                                 </table>
@@ -357,22 +360,29 @@
             });
         </script>
         <script>
-        function confirmDelete(id, name) {
-            return Swal.fire({
-                title: 'Are you sure?',
-                text: `Do you want to delete "${name}"?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#d33',
-                cancelButtonColor: '#3085d6',
-                confirmButtonText: 'Yes, delete it!',
-                cancelButtonText: 'Cancel'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    window.location.href = `delete_product.php?id=${id}`;
-                }
+            document.addEventListener('DOMContentLoaded', function() {
+                // Add click event listener to all delete buttons
+                document.querySelectorAll('.delete-product').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const productId = this.getAttribute('data-product-id');
+                        const productName = this.getAttribute('data-product-name');
+                        
+                        Swal.fire({
+                            title: 'Are you sure?',
+                            text: `Do you want to delete product "${productName}"?`,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#d33',
+                            cancelButtonColor: '#3085d6',
+                            confirmButtonText: 'Yes, delete it!'
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                window.location.href = `delete_product.php?id=${productId}`;
+                            }
+                        });
+                    });
+                });
             });
-        }
         </script>
         <!-- Add SweetAlert2 CSS and JS -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css">

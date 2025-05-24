@@ -10,38 +10,51 @@
         exit();
     }
 
+    // Check if ID is provided
     if (!isset($_GET['id'])) {
         header("Location: categories.php");
         exit();
     }
 
-    $id = $_GET['id'];
+    $hashed_id = $_GET['id'];
 
     // Handle form submission
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         try {
+            // Get form data
             $category_name = $_POST['category_name'];
-            
+
+            // Get the actual ID from the database using the hashed ID
+            $id_query = "SELECT id FROM categories WHERE MD5(id) = ?";
+            $id_stmt = $conn->prepare($id_query);
+            $id_stmt->execute([$hashed_id]);
+            $category_id = $id_stmt->fetchColumn();
+
+            if (!$category_id) {
+                throw new Exception("Category not found");
+            }
+
+            // Update database
             $query = "UPDATE categories SET category_name = :category_name WHERE id = :id";
             $stmt = $conn->prepare($query);
             $stmt->bindParam(':category_name', $category_name);
-            $stmt->bindParam(':id', $id);
+            $stmt->bindParam(':id', $category_id);
             
             if ($stmt->execute()) {
                 header("Location: categories.php");
                 exit();
             }
-        } catch(PDOException $e) {
+
+        } catch(Exception $e) {
             $error = "Error: " . $e->getMessage();
         }
     }
 
-    // Fetch category
+    // Fetch category data
     try {
-        $query = "SELECT * FROM categories WHERE id = :id";
+        $query = "SELECT * FROM categories WHERE MD5(id) = ?";
         $stmt = $conn->prepare($query);
-        $stmt->bindParam(':id', $id);
-        $stmt->execute();
+        $stmt->execute([$hashed_id]);
         $category = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$category) {
@@ -94,7 +107,7 @@
                         <div class="card mb-4">
                             <div class="card-header">
                                 <i class="fas fa-edit me-1"></i>
-                                Edit Category
+                                Edit Category Form
                             </div>
                             <div class="card-body">
                                 <form method="POST">
@@ -103,6 +116,7 @@
                                         <input type="text" class="form-control" id="category_name" name="category_name" 
                                                value="<?php echo htmlspecialchars($category['category_name']); ?>" required>
                                     </div>
+
                                     <div class="mb-3">
                                         <button type="submit" class="btn btn-primary">Update Category</button>
                                         <a href="categories.php" class="btn btn-secondary">Cancel</a>

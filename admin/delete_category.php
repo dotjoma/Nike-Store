@@ -12,12 +12,23 @@
 
     if (isset($_GET['id'])) {
         try {
-            $id = $_GET['id'];
+            $hashed_id = $_GET['id'];
+            
+            // Get the actual ID from the database using the hashed ID
+            $id_query = "SELECT id FROM categories WHERE MD5(CAST(id AS CHAR)) = ?";
+            $id_stmt = $conn->prepare($id_query);
+            $id_stmt->execute([$hashed_id]);
+            $category_id = $id_stmt->fetchColumn();
+
+            if (!$category_id) {
+                header("Location: categories.php?error=Category not found");
+                exit();
+            }
             
             // Check if category is being used by any products
             $check_query = "SELECT COUNT(*) FROM products WHERE category_id = :id";
             $check_stmt = $conn->prepare($check_query);
-            $check_stmt->bindParam(':id', $id);
+            $check_stmt->bindParam(':id', $category_id);
             $check_stmt->execute();
             $count = $check_stmt->fetchColumn();
 
@@ -29,7 +40,7 @@
             // Delete category
             $query = "DELETE FROM categories WHERE id = :id";
             $stmt = $conn->prepare($query);
-            $stmt->bindParam(':id', $id);
+            $stmt->bindParam(':id', $category_id);
             
             if ($stmt->execute()) {
                 header("Location: categories.php");

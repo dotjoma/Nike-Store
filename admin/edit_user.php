@@ -14,7 +14,7 @@
         exit();
     }
 
-    $id = $_GET['id'];
+    $hashed_id = $_GET['id'];
 
     // Handle form submission
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -37,12 +37,22 @@
             }
 
             // Check if email is already taken by another user
-            $check_query = "SELECT id FROM users WHERE email = ? AND id != ?";
+            $check_query = "SELECT id FROM users WHERE email = ? AND MD5(id) != ?";
             $check_stmt = $conn->prepare($check_query);
-            $check_stmt->execute([$email, $id]);
+            $check_stmt->execute([$email, $hashed_id]);
             
             if($check_stmt->rowCount() > 0) {
                 throw new Exception("Email already exists");
+            }
+
+            // Get the actual ID from the database using the hashed ID
+            $id_query = "SELECT id FROM users WHERE MD5(id) = ?";
+            $id_stmt = $conn->prepare($id_query);
+            $id_stmt->execute([$hashed_id]);
+            $user_id = $id_stmt->fetchColumn();
+
+            if (!$user_id) {
+                throw new Exception("User not found");
             }
 
             // Update user information
@@ -50,11 +60,11 @@
                 $query = "UPDATE users SET name = ?, email = ?, role = ?, image = ? WHERE id = ?";
                 $stmt = $conn->prepare($query);
                 $stmt->bindParam(':image', $image, PDO::PARAM_LOB);
-                $stmt->execute([$name, $email, $role, $image, $id]);
+                $stmt->execute([$name, $email, $role, $image, $user_id]);
             } else {
                 $query = "UPDATE users SET name = ?, email = ?, role = ? WHERE id = ?";
                 $stmt = $conn->prepare($query);
-                $stmt->execute([$name, $email, $role, $id]);
+                $stmt->execute([$name, $email, $role, $user_id]);
             }
 
             // If password is provided, update it
@@ -62,7 +72,7 @@
                 $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
                 $query = "UPDATE users SET password = ? WHERE id = ?";
                 $stmt = $conn->prepare($query);
-                $stmt->execute([$password, $id]);
+                $stmt->execute([$password, $user_id]);
             }
 
             $success = "User updated successfully";
@@ -70,7 +80,7 @@
             // Refresh user data
             $query = "SELECT * FROM users WHERE id = ?";
             $stmt = $conn->prepare($query);
-            $stmt->execute([$id]);
+            $stmt->execute([$user_id]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         } catch(Exception $e) {
@@ -79,9 +89,9 @@
     } else {
         // Fetch user data
         try {
-            $query = "SELECT * FROM users WHERE id = ?";
+            $query = "SELECT * FROM users WHERE MD5(id) = ?";
             $stmt = $conn->prepare($query);
-            $stmt->execute([$id]);
+            $stmt->execute([$hashed_id]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (!$user) {

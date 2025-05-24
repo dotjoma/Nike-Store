@@ -11,15 +11,21 @@
     // Handle user deletion
     if(isset($_GET['delete'])) {
         try {
-            $id = $_GET['delete'];
+            $hashed_id = $_GET['delete'];
+            
+            // Get the actual ID from the database using the hashed ID
+            $id_query = "SELECT id FROM users WHERE MD5(id) = ?";
+            $id_stmt = $conn->prepare($id_query);
+            $id_stmt->execute([$hashed_id]);
+            $user_id = $id_stmt->fetchColumn();
             
             // Don't allow deleting your own account
-            if($id == $_SESSION['user_id']) {
+            if($user_id == $_SESSION['user_id']) {
                 $error = "You cannot delete your own account";
             } else {
                 $query = "DELETE FROM users WHERE id = ?";
                 $stmt = $conn->prepare($query);
-                $stmt->execute([$id]);
+                $stmt->execute([$user_id]);
                 $success = "User deleted successfully";
             }
         } catch(PDOException $e) {
@@ -139,14 +145,14 @@
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    <a href="edit_user.php?id=<?php echo $user['id']; ?>" 
+                                                    <a href="edit_user.php?id=<?php echo md5($user['id']); ?>" 
                                                        class="btn btn-primary btn-sm">
                                                         <i class="fas fa-edit"></i>
                                                     </a>
                                                     <?php if($user['id'] != $_SESSION['user_id']): ?>
                                                         <a href="javascript:void(0)" 
                                                            class="btn btn-danger btn-sm delete-user"
-                                                           data-user-id="<?php echo $user['id']; ?>"
+                                                           data-user-id="<?php echo md5($user['id']); ?>"
                                                            data-user-name="<?php echo htmlspecialchars($user['name']); ?>">
                                                             <i class="fas fa-trash"></i>
                                                         </a>

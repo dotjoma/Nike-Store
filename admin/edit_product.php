@@ -16,7 +16,7 @@
         exit();
     }
 
-    $id = $_GET['id'];
+    $hashed_id = $_GET['id'];
 
     // Handle form submission
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
@@ -42,6 +42,16 @@
                 } else {
                     throw new Exception("Invalid file type. Only JPG, PNG, GIF and AVIF are allowed.");
                 }
+            }
+
+            // Get the actual ID from the database using the hashed ID
+            $id_query = "SELECT id FROM products WHERE MD5(id) = ?";
+            $id_stmt = $conn->prepare($id_query);
+            $id_stmt->execute([$hashed_id]);
+            $product_id = $id_stmt->fetchColumn();
+
+            if (!$product_id) {
+                throw new Exception("Product not found");
             }
 
             // Update database
@@ -79,7 +89,7 @@
             $stmt->bindParam(':stock', $stock);
             $stmt->bindParam(':category_id', $category_id);
             $stmt->bindParam(':status', $status);
-            $stmt->bindParam(':id', $id);
+            $stmt->bindParam(':id', $product_id);
             
             if ($stmt->execute()) {
                 header("Location: product.php");
@@ -93,10 +103,9 @@
 
     // Fetch product data
     try {
-        $query = "SELECT * FROM products WHERE id = :id";
+        $query = "SELECT * FROM products WHERE MD5(id) = ?";
         $stmt = $conn->prepare($query);
-        $stmt->bindParam(':id', $id);
-        $stmt->execute();
+        $stmt->execute([$hashed_id]);
         $product = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$product) {
