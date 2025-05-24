@@ -104,6 +104,12 @@
                         <li class="nav-item"><a class="nav-link active" href="index.php">Home</a></li>
                         <li class="nav-item"><a class="nav-link" href="about.php">About</a></li>
                     </ul>
+                    <form class="d-flex me-3" action="search.php" method="GET">
+                        <input class="form-control me-2" type="search" name="query" placeholder="Search products..." aria-label="Search">
+                        <button class="btn btn-outline-light" type="submit">
+                            <i class="bi bi-search"></i>
+                        </button>
+                    </form>
                     <div class="d-flex align-items-center">
                         <form class="d-flex me-3">
                             <button class="btn btn-outline-light" type="submit">
